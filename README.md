@@ -26,7 +26,7 @@ This is a template for Next.JS 14 with TypeScript. It is also configured with th
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/itsdrvgo/nextjs-template.git
+git clone https://github.com/itsdrvgo/nextjs-14-template.git
 ```
 
 ### 2. Install dependencies
