@@ -2,26 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+@layer base {
+    :root {
+        --text: hsl(0, 0%, 100%);
+        --background: hsl(210, 4%, 6%);
+        --accent: hsl(212, 85%, 82%);
+        --border: hsl(213, 10%, 17%);
+    }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-text;
+    }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+aside.EmojiPickerReact.epr-main {
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+::-webkit-scrollbar {
+    width: 7px;
+    background-color: rgb(32, 36, 39);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgb(21, 77, 77);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(23, 98, 119);
 }
