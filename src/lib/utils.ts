@@ -38,9 +38,3 @@ export function handleError(err: unknown) {
             message: "Internal Server Error!",
         });
 }
-
-export function getTheme() {
-    if (typeof window === "undefined" || typeof localStorage === "undefined")
-        return "light";
-    return (localStorage.getItem("theme") as "dark" | "light") ?? "light";
-}

@@ -1,24 +1,12 @@
 import { SiteConfig } from "../types";
 
 export const siteConfig: SiteConfig = {
-    name: "PeerAmp",
+    name: "DRVGO",
     description:
-        "PeerAmp fosters professional success through collaborative networks. Join a community where collaboration fuels growth and amplifies career achievements.",
-    topLevelDomain: ".com",
-    url: "https://peeramp.com",
+        "DRVGO is a community of developers and designers who are passionate about creating and learning new things.",
+    url: "https://itsdrvgo.me",
     ogImage: "/og.webp",
-    keywords: [
-        "PeerAmp",
-        "PeerAmp.com",
-        "PeerAmp Network",
-        "PeerAmp Community",
-        "PeerAmp Collaboration",
-        "PeerAmp Professional",
-        "PeerAmp Success",
-        "PeerAmp Career",
-        "PeerAmp Achievements",
-        "PeerAmp Growth",
-    ],
+    keywords: [],
     links: {
         youtube: "",
         instagram: "",

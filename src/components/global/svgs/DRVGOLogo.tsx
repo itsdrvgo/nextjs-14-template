@@ -1,6 +1,7 @@
+import { siteConfig } from "@/src/config/site";
 import { SVGProps } from "react";
 
-function DRVGO({
+function DRVGOLogo({
     width,
     height,
     className,
@@ -8,8 +9,8 @@ function DRVGO({
 }: SVGProps<SVGSVGElement>) {
     return (
         <svg
-            id="DRVGO"
-            data-name="DRVGO"
+            id={siteConfig.name}
+            data-name={siteConfig.name}
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 2000 2000"
             height={height || 30}
@@ -46,4 +47,4 @@ function DRVGO({
     );
 }
 
-export default DRVGO;
+export default DRVGOLogo;
