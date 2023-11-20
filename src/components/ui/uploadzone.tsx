@@ -79,7 +79,7 @@ function UploadZone({
                         <div className="flex flex-col items-center gap-2">
                             <Button
                                 type="button"
-                                className="border bg-default-100 font-semibold"
+                                className="border bg-default-100 font-medium"
                                 radius="sm"
                                 startContent={
                                     !isUploading && (

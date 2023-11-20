@@ -1,10 +1,12 @@
 import { IncomingHttpHeaders } from "http";
-import { ReactNode } from "react";
+import { HTMLAttributes, ReactNode } from "react";
 import { WebhookRequiredHeaders } from "svix";
+import { Icons } from "../components/icons/icons";
 
 export type SiteConfig = {
     name: string;
     description: string;
+    topLevelDomain: string;
     url: string;
     ogImage: string;
     keywords: string[];
@@ -52,3 +54,13 @@ export type CachedRole = {
     createdAt: string;
     updatedAt: string;
 };
+
+export type NavItem = {
+    title: string;
+    description?: string;
+    href: string;
+    disabled?: boolean;
+    icon?: keyof typeof Icons;
+};
+
+export type MenuConfig = NavItem[];

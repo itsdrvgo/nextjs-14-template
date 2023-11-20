@@ -2,22 +2,22 @@ import "./globals.css";
 import { siteConfig } from "@/src/config/site";
 import { Analytics } from "@vercel/analytics/react";
 import { Metadata } from "next";
-import { Titillium_Web } from "next/font/google";
+import { Sunflower } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import ClientProvider from "../components/providers/client";
 import ServerProvider from "../components/providers/server";
 import { cn } from "../lib/utils";
 import { RootLayoutProps } from "../types";
 
-const poppins = Titillium_Web({
+const font = Sunflower({
     subsets: ["latin"],
-    weight: ["200", "300", "400", "600", "700"],
+    weight: ["300", "500", "700"],
 });
 
 export const metadata: Metadata = {
     title: {
         default: siteConfig.name,
-        template: `${siteConfig.name} | %s`,
+        template: `%s | ${siteConfig.name}`,
     },
     description: siteConfig.description,
     keywords: siteConfig.keywords,
@@ -63,15 +63,15 @@ export const metadata: Metadata = {
 function RootLayout({ children }: RootLayoutProps) {
     return (
         <ServerProvider>
-            <html lang="en" suppressHydrationWarning className="dark">
+            <html lang="en" suppressHydrationWarning>
                 <head />
-                <body
+                <ClientProvider
                     className={cn(
-                        poppins.className,
-                        "min-h-screen overflow-x-hidden scroll-smooth antialiased"
+                        font.className,
+                        "min-h-screen overflow-x-hidden scroll-smooth bg-background text-foreground antialiased"
                     )}
                 >
-                    <ClientProvider>{children}</ClientProvider>
+                    {children}
                     <Analytics />
                     <Toaster
                         toastOptions={{
@@ -81,7 +81,7 @@ function RootLayout({ children }: RootLayoutProps) {
                             },
                         }}
                     />
-                </body>
+                </ClientProvider>
             </html>
         </ServerProvider>
     );

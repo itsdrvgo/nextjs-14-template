@@ -148,7 +148,7 @@ function SignInForm() {
                     )}
                 />
                 <Button
-                    className="font-semibold"
+                    className="font-medium"
                     type="submit"
                     color="primary"
                     radius="sm"

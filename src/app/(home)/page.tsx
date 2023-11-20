@@ -1,5 +1,7 @@
+import Hero from "@/src/components/home/hero";
+
 function Page() {
-    return <div>hello</div>;
+    return <Hero />;
 }
 
 export default Page;

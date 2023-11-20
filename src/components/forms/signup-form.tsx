@@ -161,7 +161,7 @@ function SignUpForm() {
                     )}
                 />
                 <Button
-                    className="font-semibold"
+                    className="font-medium"
                     type="submit"
                     color="primary"
                     radius="sm"
