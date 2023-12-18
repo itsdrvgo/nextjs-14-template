@@ -1,12 +1,25 @@
 import { SiteConfig } from "../types";
 
 export const siteConfig: SiteConfig = {
-    name: "DRVGO",
+    name: "Vercel",
     description:
-        "DRVGO is a community of developers and designers who are passionate about creating and learning new things.",
-    url: "https://itsdrvgo.me",
+        "Vercel is the best place to deploy any frontend app. Start by deploying with zero configuration to our global edge network.",
+    url: "https://vercel.com",
     ogImage: "/og.webp",
-    keywords: [],
+    keywords: [
+        "vercel",
+        "zeit",
+        "deploy",
+        "hosting",
+        "serverless",
+        "cloud",
+        "functions",
+        "edge",
+        "cdn",
+        "static",
+        "jamstack",
+        "next",
+    ],
     links: {
         youtube: "",
         instagram: "",

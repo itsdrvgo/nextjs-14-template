@@ -10,6 +10,7 @@ import {
     BarChart2,
     Bell,
     Bold,
+    Bookmark,
     BookMarked,
     BookOpenCheck,
     Bug,
@@ -25,6 +26,7 @@ import {
     Clock3,
     Code,
     Command,
+    Compass,
     Component,
     Construction,
     Copy,
@@ -40,15 +42,18 @@ import {
     Fingerprint,
     Flag,
     Folder,
+    Fullscreen,
     Gem,
     Gift,
     Github,
     Globe,
+    GraduationCap,
     GripVertical,
     Hand,
     Hash,
     Heart,
     HelpCircle,
+    Home,
     Image,
     Info,
     Instagram,
@@ -59,6 +64,7 @@ import {
     LayoutDashboard,
     LifeBuoy,
     Link,
+    Linkedin,
     List,
     Loader2,
     Lock,
@@ -69,10 +75,13 @@ import {
     Mail,
     MapPin,
     Medal,
+    Menu,
+    MessageCircle,
     MessageSquare,
     MessageSquarePlus,
     Minus,
     Moon,
+    MoreHorizontal,
     MoreVertical,
     Music4,
     PanelRight,
@@ -81,8 +90,10 @@ import {
     Pin,
     Pizza,
     Plus,
+    PlusSquare,
     Podcast,
     RefreshCw,
+    Repeat2,
     Search,
     Send,
     SendHorizonal,
@@ -96,6 +107,7 @@ import {
     Ticket,
     Trash,
     Trophy,
+    Twitch,
     Twitter,
     Underline,
     Upload,
@@ -105,17 +117,33 @@ import {
     UserPlus,
     Users,
     Verified,
+    Video,
     Vote,
     Wrench,
     X,
     Youtube,
     Zap,
+    ZoomIn,
     type IconNode as LucideIcon,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
 
 export const Icons = {
+    zoom: ZoomIn,
+    fullscreen: Fullscreen,
+    graduationHat: GraduationCap,
+    create: PlusSquare,
+    moreHor: MoreHorizontal,
+    repeat: Repeat2,
+    bookmark: Bookmark,
+    video: Video,
+    twitch: Twitch,
+    linkedin: Linkedin,
+    messages: MessageCircle,
+    menu: Menu,
+    home: Home,
+    compass: Compass,
     minus: Minus,
     smile: Smile,
     chatPlus: MessageSquarePlus,
@@ -228,6 +256,24 @@ export const Icons = {
     layers: Layers,
     code: Code,
     sidePanel: PanelRight,
+    x: ({ ...props }: LucideProps) => (
+        <svg
+            aria-hidden="true"
+            focusable="false"
+            data-prefix="fas"
+            data-icon="x"
+            role="img"
+            xmlns="http://www.w3.org/2000/svg"
+            width="300"
+            height="300.251"
+            version="1.1"
+            fill="currentColor"
+            viewBox="0 0 300 300.251"
+            {...props}
+        >
+            <path d="M178.57 127.15 290.27 0h-26.46l-97.03 110.38L89.34 0H0l117.13 166.93L0 300.25h26.46l102.4-116.59 81.8 116.59h89.34M36.01 19.54H76.66l187.13 262.13h-40.66" />
+        </svg>
+    ),
     discord: ({ ...props }: LucideProps) => (
         <svg
             aria-hidden="true"
@@ -286,6 +332,44 @@ export const Icons = {
                 d="M141.68 16.25c-11.04 0-19 7.2-19 18s8.96 18 20 18c6.67 0 12.55-2.64 16.19-7.09l-7.65-4.42c-2.02 2.21-5.09 3.5-8.54 3.5-4.79 0-8.86-2.5-10.37-6.5h28.02c.22-1.12.35-2.28.35-3.5 0-10.79-7.96-17.99-19-17.99zm-9.46 14.5c1.25-3.99 4.67-6.5 9.45-6.5 4.79 0 8.21 2.51 9.45 6.5h-18.9zm117.14-14.5c-11.04 0-19 7.2-19 18s8.96 18 20 18c6.67 0 12.55-2.64 16.19-7.09l-7.65-4.42c-2.02 2.21-5.09 3.5-8.54 3.5-4.79 0-8.86-2.5-10.37-6.5h28.02c.22-1.12.35-2.28.35-3.5 0-10.79-7.96-17.99-19-17.99zm-9.45 14.5c1.25-3.99 4.67-6.5 9.45-6.5 4.79 0 8.21 2.51 9.45 6.5h-18.9zm-39.03 3.5c0 6 3.92 10 10 10 4.12 0 7.21-1.87 8.8-4.92l7.68 4.43c-3.18 5.3-9.14 8.49-16.48 8.49-11.05 0-19-7.2-19-18s7.96-18 19-18c7.34 0 13.29 3.19 16.48 8.49l-7.68 4.43c-1.59-3.05-4.68-4.92-8.8-4.92-6.07 0-10 4-10 10zm82.48-29v46h-9v-46h9zM37.59.25l36.95 64H.64l36.95-64zm92.38 5l-27.71 48-27.71-48h10.39l17.32 30 17.32-30h10.39zm58.91 12v9.69c-1-.29-2.06-.49-3.2-.49-5.81 0-10 4-10 10v14.8h-9v-34h9v9.2c0-5.08 5.91-9.2 13.2-9.2z"
                 fill="white"
             ></path>
+        </svg>
+    ),
+    spotify: ({ ...props }: LucideProps) => (
+        <svg
+            aria-hidden="true"
+            focusable="false"
+            data-icon="spotify"
+            role="img"
+            xmlns="http://www.w3.org/2000/svg"
+            width="168"
+            height="168"
+            fill="#1ED760"
+            viewBox="0 0 168 168"
+            {...props}
+        >
+            <path d="m83.996 0.277c-46.249 0-83.743 37.493-83.743 83.742 0 46.251 37.494 83.741 83.743 83.741 46.254 0 83.744-37.49 83.744-83.741 0-46.246-37.49-83.738-83.745-83.738l0.001-0.004zm38.404 120.78c-1.5 2.46-4.72 3.24-7.18 1.73-19.662-12.01-44.414-14.73-73.564-8.07-2.809 0.64-5.609-1.12-6.249-3.93-0.643-2.81 1.11-5.61 3.926-6.25 31.9-7.291 59.263-4.15 81.337 9.34 2.46 1.51 3.24 4.72 1.73 7.18zm10.25-22.805c-1.89 3.075-5.91 4.045-8.98 2.155-22.51-13.839-56.823-17.846-83.448-9.764-3.453 1.043-7.1-0.903-8.148-4.35-1.04-3.453 0.907-7.093 4.354-8.143 30.413-9.228 68.222-4.758 94.072 11.127 3.07 1.89 4.04 5.91 2.15 8.976v-0.001zm0.88-23.744c-26.99-16.031-71.52-17.505-97.289-9.684-4.138 1.255-8.514-1.081-9.768-5.219-1.254-4.14 1.08-8.513 5.221-9.771 29.581-8.98 78.756-7.245 109.83 11.202 3.73 2.209 4.95 7.016 2.74 10.733-2.2 3.722-7.02 4.949-10.73 2.739z" />
+        </svg>
+    ),
+    tiktok: ({ ...props }: LucideProps) => (
+        <svg
+            aria-hidden="true"
+            focusable="false"
+            data-icon="tiktok"
+            role="img"
+            shapeRendering="geometricPrecision"
+            textRendering="geometricPrecision"
+            imageRendering="optimizeQuality"
+            fillRule="evenodd"
+            clipRule="evenodd"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            viewBox="0 0 449.45 515.38"
+            {...props}
+        >
+            <path
+                fillRule="nonzero"
+                d="M382.31 103.3c-27.76-18.1-47.79-47.07-54.04-80.82-1.35-7.29-2.1-14.8-2.1-22.48h-88.6l-.15 355.09c-1.48 39.77-34.21 71.68-74.33 71.68-12.47 0-24.21-3.11-34.55-8.56-23.71-12.47-39.94-37.32-39.94-65.91 0-41.07 33.42-74.49 74.48-74.49 7.67 0 15.02 1.27 21.97 3.44V190.8c-7.2-.99-14.51-1.59-21.97-1.59C73.16 189.21 0 262.36 0 352.3c0 55.17 27.56 104 69.63 133.52 26.48 18.61 58.71 29.56 93.46 29.56 89.93 0 163.08-73.16 163.08-163.08V172.23c34.75 24.94 77.33 39.64 123.28 39.64v-88.61c-24.75 0-47.8-7.35-67.14-19.96z"
+            />
         </svg>
     ),
 };

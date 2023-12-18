@@ -1,7 +1,9 @@
 import { env } from "@/env.mjs";
-import { connect } from "@planetscale/database";
-import { drizzle } from "drizzle-orm/planetscale-serverless";
-import * as AuthSchema from "./schema";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import * as Schema from "./schema";
 
-const connection = connect({ url: env.DATABASE_URL });
-export const db = drizzle(connection, { schema: AuthSchema });
+const connection = postgres(env.DATABASE_URL, {
+    prepare: false,
+});
+export const db = drizzle(connection, { schema: Schema });

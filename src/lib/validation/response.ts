@@ -1,24 +1,33 @@
-import { z } from "zod";
+import { z, ZodType } from "zod";
 
-export const responseValidator = z.object({
-    code: z.union([
-        z.literal(200),
-        z.literal(201),
-        z.literal(202),
-        z.literal(204),
-        z.literal(400),
-        z.literal(401),
-        z.literal(402),
-        z.literal(403),
-        z.literal(404),
-        z.literal(405),
-        z.literal(409),
-        z.literal(429),
-        z.literal(500),
-        z.literal(502),
-    ]),
-    message: z.string(),
-    data: z.any().optional(),
-});
+export const responseMessages = z.union([
+    z.literal("OK"),
+    z.literal("ERROR"),
+    z.literal("UNAUTHORIZED"),
+    z.literal("FORBIDDEN"),
+    z.literal("NOT_FOUND"),
+    z.literal("BAD_REQUEST"),
+    z.literal("TOO_MANY_REQUESTS"),
+    z.literal("INTERNAL_SERVER_ERROR"),
+    z.literal("SERVICE_UNAVAILABLE"),
+    z.literal("GATEWAY_TIMEOUT"),
+    z.literal("UNKNOWN_ERROR"),
+    z.literal("UNPROCESSABLE_ENTITY"),
+    z.literal("NOT_IMPLEMENTED"),
+    z.literal("CREATED"),
+    z.literal("BAD_GATEWAY"),
+]);
 
-export type ResponseData = z.infer<typeof responseValidator>;
+const responseSchema = <DataType extends z.ZodTypeAny>(dataType: DataType) =>
+    z.object({
+        code: z.number(),
+        message: responseMessages,
+        longMessage: z.string().optional(),
+        data: dataType.optional(),
+    });
+
+export type ResponseMessages = z.infer<typeof responseMessages>;
+type ResponseType<DataType extends z.ZodTypeAny> = ReturnType<
+    typeof responseSchema<DataType>
+>;
+export type ResponseData<T> = z.infer<ResponseType<ZodType<T>>>;

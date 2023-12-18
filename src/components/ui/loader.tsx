@@ -1,6 +1,6 @@
+import Vercel from "@/src/components/global/svgs/Vercel";
 import { cn } from "@/src/lib/utils";
 import { DefaultProps } from "@/src/types";
-import DRVGOLogo from "../global/svgs/DRVGOLogo";
 
 function Loader({ className, ...props }: DefaultProps) {
     return (
@@ -12,7 +12,7 @@ function Loader({ className, ...props }: DefaultProps) {
             {...props}
         >
             <div className="flex animate-pulse flex-col items-center gap-2">
-                <DRVGOLogo width={200} height={200} />
+                <Vercel width={200} height={200} />
                 <p className="text-2xl font-bold uppercase">Loading...</p>
             </div>
         </div>

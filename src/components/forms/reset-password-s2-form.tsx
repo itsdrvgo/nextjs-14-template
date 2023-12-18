@@ -2,11 +2,13 @@
 
 import { DEFAULT_ERROR_MESSAGE } from "@/src/config/const";
 import { handleClientError } from "@/src/lib/utils";
-import { LoginData, loginSchema } from "@/src/lib/validation/auth";
+import {
+    ResetPasswordData,
+    resetPasswordSchema,
+} from "@/src/lib/validation/auth";
 import { isClerkAPIResponseError, useSignIn } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Input, Link } from "@nextui-org/react";
-import NextLink from "next/link";
+import { Button, Input } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -21,31 +23,34 @@ import {
     FormMessage,
 } from "../ui/form";
 
-function SignInForm() {
+function ResetPasswordS2Form() {
     const router = useRouter();
 
     const [isLoading, setIsLoading] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
-
+    const [value, setValue] = useState("");
     const { signIn, isLoaded, setActive } = useSignIn();
 
-    const form = useForm<LoginData>({
-        resolver: zodResolver(loginSchema),
+    const form = useForm<ResetPasswordData>({
+        resolver: zodResolver(resetPasswordSchema),
         defaultValues: {
-            email: "",
             password: "",
+            confirmPassword: "",
+            verificationCode: "",
         },
     });
 
-    const onSubmit = async (data: LoginData) => {
+    const onSubmit = async (data: ResetPasswordData) => {
         if (!isLoaded)
             return toast.error("Authentication service is not loaded!");
 
-        const toastId = toast.loading("Signing in, please wait...");
+        setIsLoading(true);
+        const toastId = toast.loading("Validating, please wait...");
 
         try {
-            const res = await signIn.create({
-                identifier: data.email,
+            const res = await signIn.attemptFirstFactor({
+                strategy: "reset_password_email_code",
+                code: data.verificationCode,
                 password: data.password,
             });
 
@@ -53,7 +58,9 @@ function SignInForm() {
                 case "complete":
                     {
                         toast.success(
-                            "Welcome back, " + res.userData.firstName + "!",
+                            "Your password has been reset, " +
+                                res.userData.firstName +
+                                "!",
                             {
                                 id: toastId,
                             }
@@ -66,7 +73,8 @@ function SignInForm() {
                     break;
 
                 default:
-                    console.log(res);
+                    console.log(JSON.stringify(res, null, 2));
+                    break;
             }
         } catch (err) {
             isClerkAPIResponseError(err)
@@ -87,37 +95,15 @@ function SignInForm() {
     return (
         <Form {...form}>
             <form
-                className="flex flex-col gap-4"
+                className="grid gap-4"
                 onSubmit={(...args) => form.handleSubmit(onSubmit)(...args)}
             >
-                <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                                <Input
-                                    type="email"
-                                    inputMode="email"
-                                    size="sm"
-                                    radius="sm"
-                                    placeholder="ryomensukuna@jjk.jp"
-                                    isDisabled={isLoading}
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
                 <FormField
                     control={form.control}
                     name="password"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Password</FormLabel>
+                            <FormLabel>New Password</FormLabel>
                             <FormControl>
                                 <Input
                                     size="sm"
@@ -148,15 +134,53 @@ function SignInForm() {
                     )}
                 />
 
-                <div>
-                    <Link
-                        as={NextLink}
-                        href="/signin/reset-password"
-                        className="text-sm"
-                    >
-                        Forgot password?
-                    </Link>
-                </div>
+                <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Confirm New Password</FormLabel>
+                            <FormControl>
+                                <Input
+                                    size="sm"
+                                    radius="sm"
+                                    placeholder="********"
+                                    type="password"
+                                    isDisabled={isLoading}
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="verificationCode"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Code</FormLabel>
+                            <FormControl>
+                                <Input
+                                    type="text"
+                                    inputMode="numeric"
+                                    size="sm"
+                                    radius="sm"
+                                    placeholder="132748"
+                                    isDisabled={isLoading}
+                                    {...field}
+                                    value={value}
+                                    onValueChange={(val) => {
+                                        if (val.match(/^[0-9]*$/))
+                                            setValue(val);
+                                    }}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
                 <Button
                     className="bg-default-700 font-semibold text-white dark:bg-primary-900 dark:text-black"
@@ -165,11 +189,11 @@ function SignInForm() {
                     isDisabled={isLoading}
                     isLoading={isLoading}
                 >
-                    {isLoading ? <>Signing In</> : <>Sign In</>}
+                    {isLoading ? "Validating..." : "Reset Password"}
                 </Button>
             </form>
         </Form>
     );
 }
 
-export default SignInForm;
+export default ResetPasswordS2Form;

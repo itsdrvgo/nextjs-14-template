@@ -1,11 +1,12 @@
 "use client";
 
-import { env } from "@/env.mjs";
-import useAuthStore from "@/src/lib/store/auth";
+import { DEFAULT_ERROR_MESSAGE } from "@/src/config/const";
+import { handleClientError } from "@/src/lib/utils";
 import { SignUpData, signupSchema } from "@/src/lib/validation/auth";
 import { isClerkAPIResponseError, useSignUp } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Input } from "@nextui-org/react";
+import { Button, Checkbox, Input, Link } from "@nextui-org/react";
+import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -23,90 +24,66 @@ import {
 function SignUpForm() {
     const router = useRouter();
 
-    const isAuthLoading = useAuthStore((state) => state.isAuthLoading);
-    const setAuthLoading = useAuthStore((state) => state.setAuthLoading);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
+    const [isChecked, setIsChecked] = useState(false);
 
-    const [expired, setExpired] = useState(false);
-    const [verified, setVerified] = useState(false);
-
-    const { signUp, isLoaded: signUpLoaded, setActive } = useSignUp();
+    const { signUp, isLoaded } = useSignUp();
 
     const form = useForm<SignUpData>({
         resolver: zodResolver(signupSchema),
         defaultValues: {
             email: "",
             username: "",
+            firstName: "",
+            lastName: "",
+            password: "",
+            confirmPassword: "",
         },
     });
 
-    if (!signUpLoaded)
-        return (
-            <div>
-                <Icons.spinner className="h-6 w-6 animate-spin" />
-            </div>
-        );
-
-    const { startMagicLinkFlow } = signUp.createMagicLinkFlow();
-
     const onSubmit = async (data: SignUpData) => {
-        setAuthLoading(true);
-        setExpired(false);
-        setVerified(false);
+        if (!isLoaded)
+            return toast.error("Authentication service is not loaded!");
+        if (!isChecked) return toast.error("Please agree to the TOS!");
+
+        setIsLoading(true);
+
+        const toastId = toast.loading("Signing up, please wait...");
 
         try {
             await signUp.create({
-                username: data.username,
                 emailAddress: data.email,
+                username: data.username,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                password: data.password,
             });
 
-            toast.success(
-                "A sign up link has been sent to your email. Please check your inbox"
-            );
+            await signUp.prepareEmailAddressVerification({
+                strategy: "email_code",
+            });
+
+            toast.success("Please check your email for a verification code!", {
+                id: toastId,
+            });
+
+            router.push("/signup/verify");
         } catch (err) {
-            setAuthLoading(false);
-
-            const unknownError = "Something went wrong, please try again.";
-
             isClerkAPIResponseError(err)
-                ? toast.error(err.errors[0]?.longMessage ?? unknownError)
-                : toast.error(unknownError);
+                ? toast.error(
+                      err.errors[0]?.longMessage ?? DEFAULT_ERROR_MESSAGE,
+                      {
+                          id: toastId,
+                      }
+                  )
+                : handleClientError(err, toastId);
 
             return;
-        }
-
-        const su = await startMagicLinkFlow({
-            redirectUrl: env.NEXT_PUBLIC_APP_URL + "/verification",
-        });
-
-        const verification = su.verifications.emailAddress;
-
-        if (verification.verifiedFromTheSameClient()) {
-            setVerified(true);
-            return;
-        } else if (verification.status === "expired") setExpired(true);
-
-        if (su.status === "complete") {
-            setAuthLoading(false);
-            setActive({ session: su.createdSessionId }).then(() => {
-                router.push("/profile");
-                toast.success(
-                    "Welcome to DRVGO! You have successfully signed in. Please wait while we redirect you to your profile"
-                );
-            });
-            return;
+        } finally {
+            setIsLoading(false);
         }
     };
-
-    if (expired) {
-        setAuthLoading(false);
-        router.push("/");
-        toast.error("Verification link expired, please try again!");
-    }
-    if (verified) {
-        setAuthLoading(false);
-        router.push("/profile");
-        toast.success("Welcome to DRVGO! You have successfully signed in");
-    }
 
     return (
         <Form {...form}>
@@ -122,13 +99,11 @@ function SignUpForm() {
                             <FormLabel>Username</FormLabel>
                             <FormControl>
                                 <Input
-                                    classNames={{
-                                        inputWrapper:
-                                            "border border-gray-700 bg-background lowercase",
-                                    }}
+                                    type="text"
+                                    size="sm"
                                     radius="sm"
-                                    placeholder="duckymomo60"
-                                    isDisabled={isAuthLoading}
+                                    placeholder="ryomensukuna"
+                                    isDisabled={isLoading}
                                     {...field}
                                 />
                             </FormControl>
@@ -136,6 +111,7 @@ function SignUpForm() {
                         </FormItem>
                     )}
                 />
+
                 <FormField
                     control={form.control}
                     name="email"
@@ -146,13 +122,10 @@ function SignUpForm() {
                                 <Input
                                     type="email"
                                     inputMode="email"
-                                    classNames={{
-                                        inputWrapper:
-                                            "border border-gray-700 bg-background",
-                                    }}
+                                    size="sm"
                                     radius="sm"
                                     placeholder="ryomensukuna@jjk.jp"
-                                    isDisabled={isAuthLoading}
+                                    isDisabled={isLoading}
                                     {...field}
                                 />
                             </FormControl>
@@ -160,15 +133,150 @@ function SignUpForm() {
                         </FormItem>
                     )}
                 />
+
+                <div className="flex justify-between gap-2">
+                    <FormField
+                        control={form.control}
+                        name="firstName"
+                        render={({ field }) => (
+                            <FormItem className="w-full">
+                                <FormLabel>First Name</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="text"
+                                        size="sm"
+                                        radius="sm"
+                                        placeholder="Ryomen"
+                                        isDisabled={isLoading}
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="lastName"
+                        render={({ field }) => (
+                            <FormItem className="w-full">
+                                <FormLabel>Last Name</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="text"
+                                        size="sm"
+                                        radius="sm"
+                                        placeholder="Sukuna"
+                                        isDisabled={isLoading}
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+
+                <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Password</FormLabel>
+                            <FormControl>
+                                <Input
+                                    size="sm"
+                                    radius="sm"
+                                    placeholder="********"
+                                    type={isVisible ? "text" : "password"}
+                                    isDisabled={isLoading}
+                                    endContent={
+                                        <button
+                                            type="button"
+                                            className="focus:outline-none"
+                                            onClick={() =>
+                                                setIsVisible(!isVisible)
+                                            }
+                                        >
+                                            {isVisible ? (
+                                                <Icons.hide className="h-5 w-5 opacity-80" />
+                                            ) : (
+                                                <Icons.view className="h-5 w-5 opacity-80" />
+                                            )}
+                                        </button>
+                                    }
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Confirm Password</FormLabel>
+                            <FormControl>
+                                <Input
+                                    size="sm"
+                                    radius="sm"
+                                    placeholder="********"
+                                    type="password"
+                                    isDisabled={isLoading}
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <div className="space-y-2">
+                    <p>
+                        <span className="text-sm opacity-80">
+                            By signing up, you agree to the processing of your
+                            personal data as described in our{" "}
+                        </span>
+                        <Link
+                            as={NextLink}
+                            href="/legal/privacy"
+                            className="text-sm font-semibold"
+                        >
+                            Privacy Policy.
+                        </Link>
+                    </p>
+
+                    <Checkbox
+                        color="secondary"
+                        isSelected={isChecked}
+                        onValueChange={setIsChecked}
+                    >
+                        <span>
+                            I&apos;ve read and agree to the{" "}
+                            <Link
+                                as={NextLink}
+                                href="/legal/terms"
+                                className="font-semibold"
+                            >
+                                Terms of Service
+                            </Link>
+                            .
+                        </span>
+                    </Checkbox>
+                </div>
+
                 <Button
-                    className="font-semibold"
+                    className="bg-default-700 font-semibold text-white dark:bg-primary-900 dark:text-black"
                     type="submit"
-                    color="primary"
                     radius="sm"
-                    isDisabled={isAuthLoading}
-                    isLoading={isAuthLoading}
+                    isDisabled={isLoading}
+                    isLoading={isLoading}
                 >
-                    {isAuthLoading ? <>Signing Up</> : <>Sign Up</>}
+                    {isLoading ? <>Signing Up</> : <>Sign Up</>}
                 </Button>
             </form>
         </Form>
