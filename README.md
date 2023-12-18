@@ -6,11 +6,11 @@ This is a template for Next.JS 14 with TypeScript. It is also configured with th
 -   [Prettier](https://prettier.io/) : Enforces a consistent code style.
 -   [TailwindCSS](https://tailwindcss.com/) : Utility-first CSS framework.
 -   [NextUI v2](https://nextui.org/) : Easy to use React UI Library.
--   [PlanetScale MySQL](https://planetscale.com/) : MySQL Database.
+-   [Supabase PostreSQL](https://supabase.com/) : PostgreSQL Database.
 -   [Drizzle ORM](https://orm.drizzle.team/) : ORM for SQL Databases.
 -   [Clerk](https://clerk.dev/) : Authentication and User Management.
 -   [Upstash Redis](https://upstash.com/) : Redis Database for Caching, powered by Upstash.
--   [Upstash Rate Limiting](https://upstash.com/) : Rate Limiting for API Routes, powered by Upstash.
+-   [tRPC](https://trpc.io/) : Typed RPC Framework for Next.js.
 -   [SVIX](https://svix.com/) : Webhooks for the Web.
 -   [Zustand](https://zustand-demo.pmnd.rs/) : Global State Management.
 -   [React Query / Tanstack Query](https://tanstack.com/query/latest) : Data Fetching and Caching.
@@ -19,7 +19,6 @@ This is a template for Next.JS 14 with TypeScript. It is also configured with th
 -   [Vercel Analytics](https://vercel.com/docs/analytics) : Analytics for Vercel.
 -   [Icons w/ Lucide Icons](https://lucide.dev/) : Icons for the Web.
 -   [UploadThing](https://uploadthing.com/) : Pre-built Upload Dropzone.
--   [Pre-built Upload Dropzone](https://react-dropzone.js.org/) : Styled & pre-configured Dropzone.
 
 ## Getting Started
 
@@ -54,17 +53,7 @@ npm install
 -   Copy the `.env.example` file and rename it to `.env`.
 -   Fill in the environment variables.
 
-### 4. Configure the database
-
--   Create a database on [PlanetScale](https://planetscale.com/).
--   Get the database credentials and fill them in the `.env` file.
--   Push the database schema to PlanetScale using the following command :
-
-    ```bash
-    pnpm db:push
-    ```
-
-### 5. Configure Clerk
+### 4. Configure Clerk
 
 -   Create a Clerk account and a Clerk application.
 -   Get the Clerk API Key and fill it in the `.env` file.
@@ -87,32 +76,22 @@ npm install
     -   `Allow users to delete their accounts` from `Default user permissions`
         ![Delete Account](./public/images/delete_account_auth.png)
 
-### 6. Configure HTTPS for development
+### 5. Configure HTTPS for development
 
--   Install [ngrok](https://ngrok.com/).
--   From your terminal, navigate to the directory where you installed ngrok.
--   Run the following command :
-
-```bash
-ngrok http 3000
-```
-
-or
-
-```bash
-./ngrok http 3000
-```
-
+-   Update VSCode to the latest version.
+-   Go to `Ports` in the VSCode settings.
+-   Click on `Forward a Port`, and enter `3000` as the port number.
+-   Right click on the generated URL and set `Port Visibility` to `Public`.
 -   Copy the HTTPS URL and go to the `Webhooks` section in the Clerk Dashboard.
 -   Paste the HTTPS URL in the `Endpoint URL` field and add `/api/users` at the end.
--   The final URL should look like this : `https://<random-string>.ngrok.io/api/users`.
+-   The final URL should look like this : `https://<random-string>/api/users`.
 
-### 7. Configure Upstash
+### 6. Configure Upstash
 
 -   Create an Upstash account and a Redis database.
 -   Get the Redis URL and Token and fill them in the `.env` file.
 
-### 8. Start the development server
+### 7. Start the development server
 
 -   Using [pnpm](https://pnpm.io/):
 
@@ -132,13 +111,13 @@ yarn dev
 npm run dev
 ```
 
-### 9. Start building your app
+### 8. Start building your app
 
 -   Start building your app by editing the files in the `app` directory.
 -   You can also edit the files in the `components` directory to add more functionality to your app.
 -   You can create new functions, schemas, validation methods and more in the `lib` directory.
 
-### 10. Test Build
+### 9. Test Build
 
 -   Build the app using the following command :
 
