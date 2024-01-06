@@ -6,12 +6,11 @@ import { LoginData, loginSchema } from "@/src/lib/validation/auth";
 import { isClerkAPIResponseError, useSignIn } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Input, Link } from "@nextui-org/react";
+import { useMutation } from "@tanstack/react-query";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Icons } from "../icons/icons";
 import {
     Form,
     FormControl,
@@ -20,12 +19,10 @@ import {
     FormLabel,
     FormMessage,
 } from "../ui/form";
+import PasswordInput from "../ui/password-input";
 
 function SignInForm() {
     const router = useRouter();
-
-    const [isLoading, setIsLoading] = useState(false);
-    const [isVisible, setIsVisible] = useState(false);
 
     const { signIn, isLoaded, setActive } = useSignIn();
 
@@ -37,58 +34,109 @@ function SignInForm() {
         },
     });
 
-    const onSubmit = async (data: LoginData) => {
-        if (!isLoaded)
-            return toast.error("Authentication service is not loaded!");
+    const { mutate: onSubmit, isLoading } = useMutation({
+        onMutate: () => {
+            const toastId = toast.loading("Signing in, please wait...");
+            return { toastId };
+        },
+        mutationFn: async (data: LoginData) => {
+            if (!isLoaded)
+                throw new Error("Authentication service is not loaded!");
 
-        const toastId = toast.loading("Signing in, please wait...");
-
-        try {
             const res = await signIn.create({
                 identifier: data.email,
                 password: data.password,
             });
 
-            switch (res.status) {
+            return res;
+        },
+        onSuccess: (data, _, ctx) => {
+            switch (data.status) {
                 case "complete":
                     {
                         toast.success(
-                            "Welcome back, " + res.userData.firstName + "!",
+                            "Welcome back, " + data.userData.firstName + "!",
                             {
-                                id: toastId,
+                                id: ctx?.toastId,
                             }
                         );
-                        await setActive({
-                            session: res.createdSessionId,
+                        setActive!({
+                            session: data.createdSessionId,
                         });
                         router.push("/profile");
                     }
                     break;
 
                 default:
-                    console.log(res);
+                    console.log(data);
             }
-        } catch (err) {
+        },
+        onError: (err, _, ctx) => {
             isClerkAPIResponseError(err)
                 ? toast.error(
                       err.errors[0]?.longMessage ?? DEFAULT_ERROR_MESSAGE,
                       {
-                          id: toastId,
+                          id: ctx?.toastId,
                       }
                   )
-                : handleClientError(err, toastId);
+                : handleClientError(err, ctx?.toastId);
+        },
+    });
 
-            return;
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    // const onSubmit = async (data: LoginData) => {
+    //     if (!isLoaded)
+    //         return toast.error("Authentication service is not loaded!");
+
+    //     const toastId = toast.loading("Signing in, please wait...");
+
+    //     try {
+    //         const res = await signIn.create({
+    //             identifier: data.email,
+    //             password: data.password,
+    //         });
+
+    //         switch (res.status) {
+    //             case "complete":
+    //                 {
+    //                     toast.success(
+    //                         "Welcome back, " + res.userData.firstName + "!",
+    //                         {
+    //                             id: toastId,
+    //                         }
+    //                     );
+    //                     await setActive({
+    //                         session: res.createdSessionId,
+    //                     });
+    //                     router.push("/profile");
+    //                 }
+    //                 break;
+
+    //             default:
+    //                 console.log(res);
+    //         }
+    //     } catch (err) {
+    //         isClerkAPIResponseError(err)
+    //             ? toast.error(
+    //                   err.errors[0]?.longMessage ?? DEFAULT_ERROR_MESSAGE,
+    //                   {
+    //                       id: toastId,
+    //                   }
+    //               )
+    //             : handleClientError(err, toastId);
+
+    //         return;
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
 
     return (
         <Form {...form}>
             <form
                 className="flex flex-col gap-4"
-                onSubmit={(...args) => form.handleSubmit(onSubmit)(...args)}
+                onSubmit={(...args) =>
+                    form.handleSubmit((data) => onSubmit(data))(...args)
+                }
             >
                 <FormField
                     control={form.control}
@@ -119,27 +167,10 @@ function SignInForm() {
                         <FormItem>
                             <FormLabel>Password</FormLabel>
                             <FormControl>
-                                <Input
+                                <PasswordInput
                                     size="sm"
                                     radius="sm"
-                                    placeholder="********"
-                                    type={isVisible ? "text" : "password"}
                                     isDisabled={isLoading}
-                                    endContent={
-                                        <button
-                                            type="button"
-                                            className="focus:outline-none"
-                                            onClick={() =>
-                                                setIsVisible(!isVisible)
-                                            }
-                                        >
-                                            {isVisible ? (
-                                                <Icons.hide className="h-5 w-5 opacity-80" />
-                                            ) : (
-                                                <Icons.view className="h-5 w-5 opacity-80" />
-                                            )}
-                                        </button>
-                                    }
                                     {...field}
                                 />
                             </FormControl>
@@ -165,7 +196,7 @@ function SignInForm() {
                     isDisabled={isLoading}
                     isLoading={isLoading}
                 >
-                    {isLoading ? <>Signing In</> : <>Sign In</>}
+                    {isLoading ? "Signing In" : "Sign In"}
                 </Button>
             </form>
         </Form>

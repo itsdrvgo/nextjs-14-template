@@ -1,7 +1,7 @@
 import { DEFAULT_PROFILE_IMAGE_URL } from "@/src/config/const";
 import { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import { pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 // SCHEMAS
 
@@ -37,3 +37,4 @@ export type NewUser = InferInsertModel<typeof users>;
 // ZOD SCHEMA
 
 export const insertUserSchema = createInsertSchema(users);
+export const selectUserSchema = createSelectSchema(users);

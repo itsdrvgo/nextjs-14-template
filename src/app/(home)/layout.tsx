@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 function Layout({ children }: RootLayoutProps) {
     return (
-        <div className="flex h-screen flex-col justify-between overflow-x-hidden">
+        <div className="flex min-h-screen flex-col">
             <main>{children}</main>
         </div>
     );

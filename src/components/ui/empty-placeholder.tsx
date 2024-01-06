@@ -35,7 +35,9 @@ export function EmptyPlaceholder({
             className={cn("gap-3 py-10", className)}
             fullWidth
             classNames={{
-                base: isBackgroundVisible ? "bg-default-50" : "bg-transparent",
+                base: isBackgroundVisible
+                    ? "bg-default-50 shadow-medium"
+                    : "bg-transparent shadow-none",
             }}
             {...props}
         >

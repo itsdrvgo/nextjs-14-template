@@ -9,11 +9,10 @@ import {
 import { isClerkAPIResponseError, useSignIn } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Input } from "@nextui-org/react";
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Icons } from "../icons/icons";
 import {
     Form,
     FormControl,
@@ -22,13 +21,11 @@ import {
     FormLabel,
     FormMessage,
 } from "../ui/form";
+import PasswordInput from "../ui/password-input";
 
 function ResetPasswordS2Form() {
     const router = useRouter();
 
-    const [isLoading, setIsLoading] = useState(false);
-    const [isVisible, setIsVisible] = useState(false);
-    const [value, setValue] = useState("");
     const { signIn, isLoaded, setActive } = useSignIn();
 
     const form = useForm<ResetPasswordData>({
@@ -40,63 +37,66 @@ function ResetPasswordS2Form() {
         },
     });
 
-    const onSubmit = async (data: ResetPasswordData) => {
-        if (!isLoaded)
-            return toast.error("Authentication service is not loaded!");
+    const { mutate: onSubmit, isLoading } = useMutation({
+        onMutate: () => {
+            const toastId = toast.loading("Validating, please wait...");
+            return { toastId };
+        },
+        mutationFn: async (data: ResetPasswordData) => {
+            if (!isLoaded)
+                throw new Error("Authentication service is not loaded!");
 
-        setIsLoading(true);
-        const toastId = toast.loading("Validating, please wait...");
-
-        try {
             const res = await signIn.attemptFirstFactor({
                 strategy: "reset_password_email_code",
                 code: data.verificationCode,
                 password: data.password,
             });
 
-            switch (res.status) {
+            return res;
+        },
+        onSuccess: (data, _, ctx) => {
+            switch (data.status) {
                 case "complete":
                     {
                         toast.success(
                             "Your password has been reset, " +
-                                res.userData.firstName +
+                                data.userData.firstName +
                                 "!",
                             {
-                                id: toastId,
+                                id: ctx?.toastId,
                             }
                         );
-                        await setActive({
-                            session: res.createdSessionId,
+                        setActive!({
+                            session: data.createdSessionId,
                         });
                         router.push("/profile");
                     }
                     break;
 
                 default:
-                    console.log(JSON.stringify(res, null, 2));
+                    console.log(JSON.stringify(data, null, 2));
                     break;
             }
-        } catch (err) {
+        },
+        onError: (err, _, ctx) => {
             isClerkAPIResponseError(err)
                 ? toast.error(
                       err.errors[0]?.longMessage ?? DEFAULT_ERROR_MESSAGE,
                       {
-                          id: toastId,
+                          id: ctx?.toastId,
                       }
                   )
-                : handleClientError(err, toastId);
-
-            return;
-        } finally {
-            setIsLoading(false);
-        }
-    };
+                : handleClientError(err, ctx?.toastId);
+        },
+    });
 
     return (
         <Form {...form}>
             <form
                 className="grid gap-4"
-                onSubmit={(...args) => form.handleSubmit(onSubmit)(...args)}
+                onSubmit={(...args) =>
+                    form.handleSubmit((data) => onSubmit(data))(...args)
+                }
             >
                 <FormField
                     control={form.control}
@@ -105,27 +105,10 @@ function ResetPasswordS2Form() {
                         <FormItem>
                             <FormLabel>New Password</FormLabel>
                             <FormControl>
-                                <Input
+                                <PasswordInput
                                     size="sm"
                                     radius="sm"
-                                    placeholder="********"
-                                    type={isVisible ? "text" : "password"}
                                     isDisabled={isLoading}
-                                    endContent={
-                                        <button
-                                            type="button"
-                                            className="focus:outline-none"
-                                            onClick={() =>
-                                                setIsVisible(!isVisible)
-                                            }
-                                        >
-                                            {isVisible ? (
-                                                <Icons.hide className="h-5 w-5 opacity-80" />
-                                            ) : (
-                                                <Icons.view className="h-5 w-5 opacity-80" />
-                                            )}
-                                        </button>
-                                    }
                                     {...field}
                                 />
                             </FormControl>
@@ -141,12 +124,11 @@ function ResetPasswordS2Form() {
                         <FormItem>
                             <FormLabel>Confirm New Password</FormLabel>
                             <FormControl>
-                                <Input
+                                <PasswordInput
                                     size="sm"
                                     radius="sm"
-                                    placeholder="********"
-                                    type="password"
                                     isDisabled={isLoading}
+                                    isToggleable={false}
                                     {...field}
                                 />
                             </FormControl>
@@ -170,10 +152,12 @@ function ResetPasswordS2Form() {
                                     placeholder="132748"
                                     isDisabled={isLoading}
                                     {...field}
-                                    value={value}
-                                    onValueChange={(val) => {
-                                        if (val.match(/^[0-9]*$/))
-                                            setValue(val);
+                                    onChange={(e) => {
+                                        if (e.target.value.match(/^[0-9]*$/))
+                                            form.setValue(
+                                                "verificationCode",
+                                                e.target.value
+                                            );
                                     }}
                                 />
                             </FormControl>

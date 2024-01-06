@@ -1,7 +1,7 @@
 "use client";
 
-import useThemeStore from "@/src/lib/store/theme";
 import { SVGProps, useEffect, useState } from "react";
+import { useTheme } from "../../providers/theme";
 
 function PeerAmp({
     width,
@@ -10,15 +10,11 @@ function PeerAmp({
     ...props
 }: SVGProps<SVGSVGElement>) {
     const [color, setColor] = useState("#000");
-    const storeTheme = useThemeStore((state) => state.theme);
+    const [theme] = useTheme();
 
     useEffect(() => {
-        if (storeTheme === "dark") {
-            setColor("#fff");
-        } else {
-            setColor("#000");
-        }
-    }, [storeTheme]);
+        setColor(theme === "dark" ? "#fff" : "#000");
+    }, [theme]);
 
     return (
         <svg

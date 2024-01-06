@@ -1,16 +1,17 @@
 "use client";
 
-import useThemeStore from "@/src/lib/store/theme";
 import { trpc } from "@/src/lib/trpc/client";
-import { cn, getTheme } from "@/src/lib/utils";
+import { cn } from "@/src/lib/utils";
 import { DefaultProps } from "@/src/types";
 import { NextUIProvider } from "@nextui-org/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { httpBatchLink, loggerLink } from "@trpc/react-query";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import superjson from "superjson";
+import SocketProvider from "./socket";
+import ThemeProvider from "./theme";
 
 const getBaseUrl = () => {
     if (typeof window !== "undefined") return "";
@@ -21,10 +22,6 @@ const getBaseUrl = () => {
 function ClientProvider({ children, className, ...props }: DefaultProps) {
     const router = useRouter();
     const [queryClient] = useState(() => new QueryClient());
-
-    const localTheme = getTheme();
-    const storeTheme = useThemeStore((state) => state.theme);
-    const setStoreTheme = useThemeStore((state) => state.setTheme);
 
     const [trpcClient] = useState(() =>
         trpc.createClient({
@@ -42,19 +39,15 @@ function ClientProvider({ children, className, ...props }: DefaultProps) {
             ],
         })
     );
-
-    useEffect(() => {
-        setStoreTheme(localTheme);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
     return (
         <NextUIProvider navigate={router.push}>
             <trpc.Provider client={trpcClient} queryClient={queryClient}>
                 <QueryClientProvider client={queryClient}>
-                    <body className={cn(storeTheme, className)} {...props}>
-                        {children}
-                    </body>
+                    <SocketProvider>
+                        <ThemeProvider className={cn(className)} {...props}>
+                            {children}
+                        </ThemeProvider>
+                    </SocketProvider>
                     <ReactQueryDevtools />
                 </QueryClientProvider>
             </trpc.Provider>

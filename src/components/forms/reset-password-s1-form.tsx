@@ -6,8 +6,8 @@ import { EmailData, emailSchema } from "@/src/lib/validation/auth";
 import { isClerkAPIResponseError, useSignIn } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Input } from "@nextui-org/react";
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import {
@@ -22,7 +22,6 @@ import {
 function ResetPasswordS1Form() {
     const router = useRouter();
 
-    const [isLoading, setIsLoading] = useState(false);
     const { signIn, isLoaded } = useSignIn();
 
     const form = useForm<EmailData>({
@@ -32,28 +31,32 @@ function ResetPasswordS1Form() {
         },
     });
 
-    const onSubmit = async (data: EmailData) => {
-        if (!isLoaded)
-            return toast.error("Authentication service is not loaded!");
+    const { mutate: onSubmit, isLoading } = useMutation({
+        onMutate: () => {
+            const toastId = toast.loading("Validating, please wait...");
+            return { toastId };
+        },
+        mutationFn: async (data: EmailData) => {
+            if (!isLoaded)
+                throw new Error("Authentication service is not loaded!");
 
-        setIsLoading(true);
-        const toastId = toast.loading("Validating, please wait...");
-
-        try {
             const res = await signIn.create({
                 strategy: "reset_password_email_code",
                 identifier: data.email,
             });
 
-            switch (res.status) {
+            return res;
+        },
+        onSuccess: (data, _, ctx) => {
+            switch (data.status) {
                 case "needs_first_factor":
                     {
                         toast.success(
                             "Verification code sent to your email, " +
-                                res.userData.firstName +
+                                data.userData.firstName +
                                 "!",
                             {
-                                id: toastId,
+                                id: ctx?.toastId,
                             }
                         );
                         router.push("/signin/reset-password/step2");
@@ -61,30 +64,29 @@ function ResetPasswordS1Form() {
                     break;
 
                 default:
-                    console.log(JSON.stringify(res, null, 2));
+                    console.log(JSON.stringify(data, null, 2));
                     break;
             }
-        } catch (err) {
+        },
+        onError: (err, _, ctx) => {
             isClerkAPIResponseError(err)
                 ? toast.error(
                       err.errors[0]?.longMessage ?? DEFAULT_ERROR_MESSAGE,
                       {
-                          id: toastId,
+                          id: ctx?.toastId,
                       }
                   )
-                : handleClientError(err, toastId);
-
-            return;
-        } finally {
-            setIsLoading(false);
-        }
-    };
+                : handleClientError(err, ctx?.toastId);
+        },
+    });
 
     return (
         <Form {...form}>
             <form
                 className="grid gap-4"
-                onSubmit={(...args) => form.handleSubmit(onSubmit)(...args)}
+                onSubmit={(...args) =>
+                    form.handleSubmit((data) => onSubmit(data))(...args)
+                }
             >
                 <FormField
                     control={form.control}

@@ -1,3 +1,4 @@
+import { init } from "@paralleldrive/cuid2";
 import { clsx, type ClassValue } from "clsx";
 import { DrizzleError } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -160,3 +161,7 @@ export function convertMstoTimeElapsed(input: number) {
         return `${month} ${day}${isSameYear ? "" : `, ${year}`}`;
     }
 }
+
+export const generateId = init({
+    length: 16,
+});

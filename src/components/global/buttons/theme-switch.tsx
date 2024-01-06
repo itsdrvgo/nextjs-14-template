@@ -1,10 +1,10 @@
 "use client";
 
-import useThemeStore from "@/src/lib/store/theme";
 import { cn } from "@/src/lib/utils";
 import { SwitchProps, useSwitch, VisuallyHidden } from "@nextui-org/react";
 import { useEffect } from "react";
 import { Icons } from "../../icons/icons";
+import { useTheme } from "../../providers/theme";
 
 function ThemeSwitch({ className, ...props }: SwitchProps) {
     const {
@@ -16,18 +16,11 @@ function ThemeSwitch({ className, ...props }: SwitchProps) {
         getWrapperProps,
     } = useSwitch(props);
 
-    const setTheme = useThemeStore((state) => state.setTheme);
-    const theme = useThemeStore((state) => state.theme);
+    const [theme, setTheme] = useTheme();
 
     useEffect(() => {
         if (isPressed) {
-            if (theme === "dark") {
-                setTheme("light");
-                localStorage.setItem("theme", "light");
-            } else {
-                setTheme("dark");
-                localStorage.setItem("theme", "dark");
-            }
+            setTheme(theme === "dark" ? "light" : "dark");
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isPressed]);
